@@ -82,17 +82,17 @@ main (int    argc,
                 exit (1);
         }
 
-		gchar** env_vars = g_get_environ(); // Get our list of environment variables
-		gchar* desktop = g_environ_getenv(env_vars, "XDG_CURRENT_DESKTOP"); // Get the current desktop value
-
-		if (desktop != NULL) { // Got a value
-			if (!g_str_has_prefix(desktop, "Budgie")) { // Does not start with Budgie
-				g_message("Not running under Budgie, exiting.");
-				exit(1);
-			}
-		}
-
-		g_strfreev(env_vars); // Free our environment variables
+        if (g_find_program_in_path("pkill") != NULL) { // Have pkill
+               g_spawn_command_line_sync("pkill -9 -f '/usr/bin/gjs /usr/share/gnome-shell/org.gnome.ScreenSaver'",
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         &error);
+               if (error) {
+                       g_warning("Failed to kill gjs: %s", error->message);
+                       g_error_free (error);
+               }
+        }
 
         gs_debug_init (debug, FALSE);
         gs_debug ("initializing budgie-screensaver %s", VERSION);
